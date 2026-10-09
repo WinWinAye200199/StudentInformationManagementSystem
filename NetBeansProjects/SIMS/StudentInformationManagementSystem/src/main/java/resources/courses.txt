@@ -1,0 +1,2 @@
+COMP503,Objected Oriented Programming,15
+COMP603,Program Design and Construction,15
