@@ -60,7 +60,7 @@ public class StudentDAO {
         return list;
     }
 
-    // SEARCH (ID, name, programme ထဲမှာ ရှာမယ်)
+    // SEARCH 
     public List<Student> searchStudents(String keyword) throws SQLException {
         List<Student> list = new ArrayList<>();
         String sql = "SELECT * FROM STUDENTS WHERE LOWER(student_id) LIKE ?"
@@ -100,7 +100,7 @@ public class StudentDAO {
         }
     }
 
-    // Object → SQL (INSERT နဲ့ UPDATE က ? အစီအစဉ် တူအောင် ရေးထားလို့ ဒီ method တစ်ခုတည်း သုံးလို့ရတယ်)
+    
     private void fillStatement(PreparedStatement ps, Student s) throws SQLException {
         ps.setString(1, s.getName());
         ps.setString(2, s.getEmail());
@@ -125,7 +125,7 @@ public class StudentDAO {
         ps.setString(10, s.getId());
     }
 
-    // SQL row → Object (student_type ကိုကြည့်ပြီး မှန်တဲ့ subclass ကို ဆောက်မယ်)
+    
     private Student mapRow(ResultSet rs) throws SQLException {
         Student s;
         if (TYPE_DOMESTIC.equals(rs.getString("student_type"))) {
