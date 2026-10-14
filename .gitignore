@@ -1,0 +1,4 @@
+target/
+derby.log
+.DS_Store
+database/SIMS_DB/db.lck
