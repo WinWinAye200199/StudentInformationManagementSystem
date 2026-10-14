@@ -1,7 +1,6 @@
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  */
-
 package com.mycompany.studentinformationmanagementsystem;
 
 import dao.CourseDAO;
@@ -15,44 +14,20 @@ import model.DomesticStudent;
 import model.Enrollment;
 import model.InternationalStudent;
 import model.Student;
+import service.CourseService;
+import service.ServiceException;
 //import ui.Menu;
 
 public class StudentInformationManagementSystem {
 
-    public static void main(String[] args) {
-        
-//        Menu menu = new Menu();
-//
-//        menu.start();
-//          try{
-//              DatabaseInitializer.initialise();
-//              StudentDAO dao = new StudentDAO();
-//              
-//              dao.deleteStudent("S001");
-//              dao.deleteStudent("S002");
-//              
-//              dao.addStudent(new DomesticStudent("S001", "Win Win Aye", "win@email.com",
-//              "0211234567", "Computer Science", 2, true));
-//              dao.addStudent(new InternationalStudent("S002", "John Lee", "john@email.com",
-//              "0217654321", "IT", 1, "Myanmar", "2027-12-31"));
-//              
-//              for (Student s : dao.getAllStudents()){
-//                  s.displayInfo();
-//                  System.out.println("------");
-//              }
-//              System.out.println("Derby connected. Tables ready.");
-//          } catch (SQLException e){
-//              System.err.println("Database error: " + e.getMessage());
-//          } finally {
-//              DatabaseConnection.getInstance().shutdown();
-//          }
-            try {
+    public static void main(String[] args) throws ServiceException {
+
+        try {
             DatabaseInitializer.initialise();
             StudentDAO studentDAO = new StudentDAO();
             CourseDAO courseDAO = new CourseDAO();
             EnrollmentDAO enrollmentDAO = new EnrollmentDAO();
 
-            // Clean old test data so the test can run again
             courseDAO.deleteCourse("COMP603");
             studentDAO.deleteStudent("S001");
             studentDAO.deleteStudent("S002");
@@ -81,6 +56,12 @@ public class StudentInformationManagementSystem {
             for (Enrollment e : enrollmentDAO.getAllEnrollments()) {
                 System.out.println(e.getStudent().getName() + " -> "
                         + e.getCourse().getCourseName() + " (" + e.getSemester() + ")");
+            }
+            CourseService courseService = new CourseService();
+            try {
+                courseService.addCourse(new Course("COMP999", "Test", 0));
+            } catch (ServiceException ex) {
+                System.out.println("Validation works: " + ex.getMessage());
             }
         } catch (SQLException e) {
             System.err.println("Database error: " + e.getMessage());
