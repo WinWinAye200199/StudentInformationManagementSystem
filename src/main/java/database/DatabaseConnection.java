@@ -4,9 +4,16 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-
 public class DatabaseConnection {
-    private static final String DB_URL = "jdbc:derby:database/SIMS_DB;create=true";
+
+    // Real database used by the application (embedded mode, stored in the project folder)
+    private static final String DEFAULT_DB_URL = "jdbc:derby:database/SIMS_DB;create=true";
+
+    // JUnit tests set the "sims.db.url" system property to an in-memory database,
+    // so running the tests never changes the real data in database/SIMS_DB
+    private static String getDbUrl() {
+        return System.getProperty("sims.db.url", DEFAULT_DB_URL);
+    }
 
     private static DatabaseConnection instance;
     private Connection connection;
@@ -22,7 +29,7 @@ public class DatabaseConnection {
 
     public synchronized Connection getConnection() throws SQLException {
         if (connection == null || connection.isClosed()) {
-            connection = DriverManager.getConnection(DB_URL);
+            connection = DriverManager.getConnection(getDbUrl());
         }
         return connection;
     }

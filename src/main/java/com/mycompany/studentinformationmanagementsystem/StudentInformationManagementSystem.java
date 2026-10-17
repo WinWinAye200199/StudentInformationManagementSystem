@@ -3,22 +3,12 @@
  */
 package com.mycompany.studentinformationmanagementsystem;
 
-import dao.CourseDAO;
-import dao.EnrollmentDAO;
-import dao.StudentDAO;
 import database.DatabaseInitializer;
 import java.sql.SQLException;
 import database.DatabaseConnection;
 import gui.LoginFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
-import model.Course;
-import model.DomesticStudent;
-import model.Enrollment;
-import model.InternationalStudent;
-import model.Student;
-import service.CourseService;
-import service.ServiceException;
 //import ui.Menu;
 
 public class StudentInformationManagementSystem {

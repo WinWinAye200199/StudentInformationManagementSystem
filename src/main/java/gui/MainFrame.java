@@ -37,8 +37,8 @@ public class MainFrame extends JFrame {
         header.add(logoutButton, BorderLayout.EAST);
 
         JTabbedPane tabs = new JTabbedPane();
-        // These placeholders will be replaced by StudentPanel, CoursePanel and EnrollmentPanel
-        tabs.addTab("Students", placeholder("Students"));
+        tabs.addTab("Students", new StudentPanel());
+        // These placeholders will be replaced by CoursePanel and EnrollmentPanel
         tabs.addTab("Courses", placeholder("Courses"));
         tabs.addTab("Enrollments", placeholder("Enrollments"));
 
