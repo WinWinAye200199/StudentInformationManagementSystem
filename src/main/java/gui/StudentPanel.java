@@ -34,8 +34,6 @@ import service.CourseService;
 import service.ServiceException;
 import service.StudentService;
 
-// View: Students tab. Table on the left, form on the right.
-// All rules and database work are done by StudentService.
 public class StudentPanel extends JPanel {
 
     private static final String DOMESTIC = "Domestic";
@@ -43,12 +41,13 @@ public class StudentPanel extends JPanel {
 
     private final CourseService courseService = new CourseService();
     private final JComboBox<Course> courseBox = new JComboBox<>();
-    
+
     private final StudentService studentService;
+    private String selectedId = null;   // null = adding a new student, otherwise = editing this student
 
     // Table
     private final DefaultTableModel tableModel = new DefaultTableModel(
-            new String[] {"ID", "Name", "Email", "Phone", "Programme", "Year", "Type", "Details"}, 0) {
+            new String[]{"ID", "Name", "Email", "Phone", "Programme", "Year", "Type", "Details"}, 0) {
         @Override
         public boolean isCellEditable(int row, int column) {
             return false;   // the table is read-only; edits go through the form
@@ -67,10 +66,16 @@ public class StudentPanel extends JPanel {
     private final JTextField phoneField = new JTextField(15);
     private final JTextField programmeField = new JTextField(15);
     private final JSpinner yearSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 5, 1));
-    private final JComboBox<String> typeBox = new JComboBox<>(new String[] {DOMESTIC, INTERNATIONAL});
+    private final JComboBox<String> typeBox = new JComboBox<>(new String[]{DOMESTIC, INTERNATIONAL});
     private final JCheckBox scholarshipBox = new JCheckBox("Has scholarship");
     private final JTextField countryField = new JTextField(15);
     private final JTextField visaField = new JTextField(15);
+
+    // Labels that are shown or hidden depending on the student type
+    private final JLabel scholarshipLabel = new JLabel("Scholarship:");
+    private final JLabel countryLabel = new JLabel("Country:");
+    private final JLabel visaLabel = new JLabel("Visa expiry:");
+    private final JLabel visaHint = new JLabel("Format: YYYY-MM-DD");
 
     public StudentPanel() {
         this(new StudentService());
@@ -89,10 +94,12 @@ public class StudentPanel extends JPanel {
         updateTypeFields();
         loadStudents(null);
         loadCourses();
-        
-        
+
+        idField.setEditable(false);   // the ID is generated automatically
+        showNextId();
+
     }
-    
+
     // Load all courses from the database into the dropdown
     private void loadCourses() {
         try {
@@ -103,8 +110,16 @@ public class StudentPanel extends JPanel {
         }
     }
 
-    // ---------- Layout ----------
+    // Show the next free ID (e.g. S003) in the ID field
+    private void showNextId() {
+        try {
+            idField.setText(studentService.generateNextId());
+        } catch (ServiceException ex) {
+            showError(ex.getMessage());
+        }
+    }
 
+    // ---------- Layout ----------
     private JPanel buildSearchBar() {
         JButton searchButton = new JButton("Search");
         JButton showAllButton = new JButton("Show All");
@@ -138,7 +153,7 @@ public class StudentPanel extends JPanel {
         });
         return new JScrollPane(table);
     }
-    
+
     // Vertical scroll for the form, so all fields and buttons can be reached on a small screen
     private JScrollPane buildFormScroll() {
         JScrollPane scroll = new JScrollPane(buildForm(),
@@ -165,14 +180,14 @@ public class StudentPanel extends JPanel {
         row = addRow(form, c, row, "Programme:", programmeField);
         row = addRow(form, c, row, "Year (1-5):", yearSpinner);
         row = addRow(form, c, row, "Student type:", typeBox);
-        row = addRow(form, c, row, "Scholarship:", scholarshipBox);
-        row = addRow(form, c, row, "Country:", countryField);
-        row = addRow(form, c, row, "Visa expiry:", visaField);
+        row = addRow(form, c, row, scholarshipLabel, scholarshipBox);
+        row = addRow(form, c, row, countryLabel, countryField);
+        row = addRow(form, c, row, visaLabel, visaField);
 
-        c.gridx = 1; c.gridy = row++;
-        JLabel hint = new JLabel("Format: YYYY-MM-DD");
-        hint.setFont(hint.getFont().deriveFont(11f));
-        form.add(hint, c);
+        c.gridx = 1;
+        c.gridy = row++;
+        visaHint.setFont(visaHint.getFont().deriveFont(11f));
+        form.add(visaHint, c);
 
         JButton addButton = new JButton("Add");
         JButton updateButton = new JButton("Update");
@@ -189,7 +204,9 @@ public class StudentPanel extends JPanel {
         buttons.add(deleteButton);
         buttons.add(clearButton);
 
-        c.gridx = 0; c.gridy = row; c.gridwidth = 2;
+        c.gridx = 0;
+        c.gridy = row;
+        c.gridwidth = 2;
         c.insets = new Insets(12, 6, 4, 6);
         form.add(buttons, c);
 
@@ -199,8 +216,14 @@ public class StudentPanel extends JPanel {
     }
 
     private int addRow(JPanel form, GridBagConstraints c, int row, String label, JComponent field) {
-        c.gridx = 0; c.gridy = row; c.gridwidth = 1;
-        form.add(new JLabel(label), c);
+        return addRow(form, c, row, new JLabel(label), field);
+    }
+
+    private int addRow(JPanel form, GridBagConstraints c, int row, JLabel label, JComponent field) {
+        c.gridx = 0;
+        c.gridy = row;
+        c.gridwidth = 1;
+        form.add(label, c);
         c.gridx = 1;
         form.add(field, c);
         return row + 1;
@@ -209,20 +232,28 @@ public class StudentPanel extends JPanel {
     // Show only the fields that belong to the selected student type
     private void updateTypeFields() {
         boolean domestic = DOMESTIC.equals(typeBox.getSelectedItem());
-        scholarshipBox.setEnabled(domestic);
-        countryField.setEnabled(!domestic);
-        visaField.setEnabled(!domestic);
+
+        scholarshipLabel.setVisible(domestic);
+        scholarshipBox.setVisible(domestic);
+
+        countryLabel.setVisible(!domestic);
+        countryField.setVisible(!domestic);
+        visaLabel.setVisible(!domestic);
+        visaField.setVisible(!domestic);
+        visaHint.setVisible(!domestic);
+
+        revalidate();   // recalculate the layout after showing/hiding fields
+        repaint();
     }
 
     // ---------- Actions ----------
-
     private void loadStudents(String keyword) {
         try {
             currentStudents = studentService.searchStudents(keyword);
             System.out.println("Students loaded from DB: " + currentStudents.size());
             tableModel.setRowCount(0);
             for (Student s : currentStudents) {
-                tableModel.addRow(new Object[] {
+                tableModel.addRow(new Object[]{
                     s.getId(), s.getName(), s.getEmail(), s.getPhone(),
                     s.getProgramme(), s.getYear(), typeOf(s), detailsOf(s)
                 });
@@ -234,8 +265,9 @@ public class StudentPanel extends JPanel {
 
     private void addStudent() {
         try {
-            studentService.addStudent(buildStudentFromForm());
-            showInfo("Student added successfully.");
+            Student student = buildStudentFromForm();
+            studentService.addStudent(student);
+            showInfo("Student " + student.getId() + " added successfully.");
             clearForm();
             loadStudents(null);
         } catch (ServiceException ex) {
@@ -244,7 +276,7 @@ public class StudentPanel extends JPanel {
     }
 
     private void updateStudent() {
-        if (idField.isEditable()) {
+        if (selectedId == null) {
             showError("Please select a student in the table first.");
             return;
         }
@@ -259,7 +291,7 @@ public class StudentPanel extends JPanel {
     }
 
     private void deleteStudent() {
-        if (idField.isEditable()) {
+        if (selectedId == null) {
             showError("Please select a student in the table first.");
             return;
         }
@@ -281,7 +313,6 @@ public class StudentPanel extends JPanel {
     }
 
     // ---------- Form helpers ----------
-
     // Polymorphism: the form creates the correct subclass, but the service only sees "Student"
     private Student buildStudentFromForm() {
         String id = idField.getText().trim();
@@ -306,7 +337,7 @@ public class StudentPanel extends JPanel {
         }
         Student s = currentStudents.get(row);
         idField.setText(s.getId());
-        idField.setEditable(false);   // the ID is the primary key, so it cannot be changed
+        selectedId = s.getId();
         nameField.setText(s.getName());
         emailField.setText(s.getEmail());
         phoneField.setText(s.getPhone());
@@ -329,8 +360,8 @@ public class StudentPanel extends JPanel {
 
     private void clearForm() {
         table.clearSelection();
-        idField.setText("");
-        idField.setEditable(true);
+        selectedId = null;
+        showNextId();
         nameField.setText("");
         emailField.setText("");
         phoneField.setText("");

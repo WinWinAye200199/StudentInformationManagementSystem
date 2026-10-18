@@ -13,25 +13,30 @@ import java.util.regex.Pattern;
 import model.DomesticStudent;
 import model.InternationalStudent;
 import model.Student;
- 
+
 public class StudentService {
- 
+
     private static final Pattern EMAIL = Pattern.compile("^[\\w.+-]+@[\\w-]+(\\.[\\w-]+)+$");
     private static final Pattern PHONE = Pattern.compile("^[0-9+ -]{7,15}$");
     private static final int MIN_YEAR = 1;
     private static final int MAX_YEAR = 5;
- 
+
     private final StudentDAO studentDAO;
- 
+
     public StudentService() {
         this(new StudentDAO());
     }
- 
+
     public StudentService(StudentDAO studentDAO) {
         this.studentDAO = studentDAO;
     }
- 
+
     public void addStudent(Student student) throws ServiceException {
+        //validateStudent(student);
+        // Auto-generate the ID when the form leaves it empty
+        if (student != null && (student.getId() == null || student.getId().isBlank())) {
+            student.setId(generateNextId());
+        }
         validateStudent(student);
         try {
             if (studentDAO.getStudentById(student.getId()) != null) {
@@ -42,7 +47,15 @@ public class StudentService {
             throw new ServiceException("Could not save the student. Please try again.", e);
         }
     }
- 
+
+    public String generateNextId() throws ServiceException {
+        try {
+            return studentDAO.getNextStudentId();
+        } catch (SQLException e) {
+            throw new ServiceException("Could not generate a student ID. Please try again.", e);
+        }
+    }
+
     public void updateStudent(Student student) throws ServiceException {
         validateStudent(student);
         try {
@@ -53,7 +66,7 @@ public class StudentService {
             throw new ServiceException("Could not update the student. Please try again.", e);
         }
     }
- 
+
     public void deleteStudent(String id) throws ServiceException {
         requireText(id, "Student ID");
         try {
@@ -64,7 +77,7 @@ public class StudentService {
             throw new ServiceException("Could not delete the student. Please try again.", e);
         }
     }
- 
+
     public Student getStudentById(String id) throws ServiceException {
         requireText(id, "Student ID");
         try {
@@ -73,7 +86,7 @@ public class StudentService {
             throw new ServiceException("Could not load the student. Please try again.", e);
         }
     }
- 
+
     public List<Student> getAllStudents() throws ServiceException {
         try {
             return studentDAO.getAllStudents();
@@ -81,7 +94,7 @@ public class StudentService {
             throw new ServiceException("Could not load students. Please try again.", e);
         }
     }
- 
+
     public List<Student> searchStudents(String keyword) throws ServiceException {
         try {
             if (keyword == null || keyword.isBlank()) {
@@ -92,7 +105,7 @@ public class StudentService {
             throw new ServiceException("Could not search students. Please try again.", e);
         }
     }
- 
+
     public void validateStudent(Student s) throws ServiceException {
         if (s == null) {
             throw new ServiceException("Student details are missing.");
@@ -100,7 +113,7 @@ public class StudentService {
         requireText(s.getId(), "Student ID");
         requireText(s.getName(), "Name");
         requireText(s.getProgramme(), "Programme");
- 
+
         if (s.getEmail() != null && !s.getEmail().isBlank()
                 && !EMAIL.matcher(s.getEmail().trim()).matches()) {
             throw new ServiceException("Please enter a valid email address (e.g. name@email.com).");
@@ -112,7 +125,7 @@ public class StudentService {
         if (s.getYear() < MIN_YEAR || s.getYear() > MAX_YEAR) {
             throw new ServiceException("Year must be between " + MIN_YEAR + " and " + MAX_YEAR + ".");
         }
- 
+
         if (s instanceof InternationalStudent i) {
             requireText(i.getCountry(), "Country");
             requireText(i.getVisaExpiry(), "Visa expiry date");
@@ -125,11 +138,10 @@ public class StudentService {
             throw new ServiceException("Please choose Domestic or International student type.");
         }
     }
- 
+
     private static void requireText(String value, String fieldName) throws ServiceException {
         if (value == null || value.isBlank()) {
             throw new ServiceException(fieldName + " is required.");
         }
     }
 }
-

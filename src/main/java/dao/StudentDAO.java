@@ -80,6 +80,22 @@ public class StudentDAO {
         return list;
     }
 
+    // Next ID in the format S001, S002, ... (finds the highest existing number and adds 1)
+    public String getNextStudentId() throws SQLException {
+        String sql = "SELECT student_id FROM STUDENTS WHERE student_id LIKE 'S%'";
+        int max = 0;
+        try (Statement st = getConnection().createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
+            while (rs.next()) {
+                String digits = rs.getString(1).substring(1);
+                if (digits.matches("\\d+")) {
+                    max = Math.max(max, Integer.parseInt(digits));
+                }
+            }
+        }
+        return String.format("S%03d", max + 1);
+    }
+    
     // UPDATE
     public boolean updateStudent(Student student) throws SQLException {
         String sql = "UPDATE STUDENTS SET name = ?, email = ?, phone = ?, programme = ?,"
