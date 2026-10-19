@@ -4,10 +4,6 @@
  */
 package dao;
 
-/**
- *
- * @author joy
- */
 import database.DatabaseConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;

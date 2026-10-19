@@ -66,4 +66,14 @@ public class StudentDAOTest {
         assertNull(dao.getStudentById("S003"));
         assertFalse(dao.deleteStudent("S003"));   // second delete finds nothing
     }
+    
+    @Test
+    public void nextStudentIdFollowsTheHighestExistingId() throws SQLException {
+        dao.addStudent(new DomesticStudent("S001", "Win Win Aye", "win@email.com",
+                "0211234567", "Computer Science", 2, true));
+        dao.addStudent(new DomesticStudent("S007", "Aye Aye", "aye@email.com",
+                "0211111111", "IT", 1, false));
+
+        assertEquals("S008", dao.getNextStudentId());
+    }
 }
