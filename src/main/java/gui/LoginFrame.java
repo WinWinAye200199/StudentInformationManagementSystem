@@ -21,7 +21,6 @@ import model.User;
 import service.AuthService;
 import service.ServiceException;
 
-// View: login screen. It only talks to AuthService (no SQL in the GUI).
 public class LoginFrame extends JFrame {
 
     private final AuthService authService = new AuthService();

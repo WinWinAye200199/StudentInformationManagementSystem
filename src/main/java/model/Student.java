@@ -4,17 +4,17 @@
  */
 package model;
 
-public class Student extends Person{
-    
+public class Student extends Person {
+
     private String programme;
     private int year;
 
-    public Student(){
-        
+    public Student() {
+
     }
-    
+
     public Student(String id, String name, String email, String phone,
-                    String programme, int year) {
+            String programme, int year) {
         super(id, name, email, phone);
         this.programme = programme;
         this.year = year;
@@ -38,14 +38,18 @@ public class Student extends Person{
 
     @Override
     public void displayInfo() {
-       System.out.println(
-            "ID: " + getId() +
-            "\nName: " + getName() +
-            "\nEmail: " + getEmail() +
-            "\nPhone: " + getPhone()+
-            "\nProgramme: " + programme +
-            "\nYear: " + year
+        System.out.println(
+                "ID: " + getId()
+                + "\nName: " + getName()
+                + "\nEmail: " + getEmail()
+                + "\nPhone: " + getPhone()
+                + "\nProgramme: " + programme
+                + "\nYear: " + year
         );
     }
-    
+
+    @Override
+    public String toString() {
+        return getId() + " - " + getName();   // shown in dropdowns, e.g. "S001 - Win Win Aye"
+    }
 }

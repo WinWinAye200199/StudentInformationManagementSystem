@@ -39,7 +39,7 @@ public class MainFrame extends JFrame {
         JTabbedPane tabs = new JTabbedPane();
         tabs.addTab("Students", new StudentPanel());
         tabs.addTab("Courses", new CoursePanel());
-        tabs.addTab("Enrollments", placeholder("Enrollments"));
+        tabs.addTab("Enrollments", new EnrollmentPanel());
 
         add(header, BorderLayout.NORTH);
         add(tabs, BorderLayout.CENTER);
@@ -59,4 +59,4 @@ public class MainFrame extends JFrame {
             dispose();
         }
     }
-} 
+}

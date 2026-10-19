@@ -51,5 +51,8 @@ public class Course {
         );
     };
     
-   
+   @Override
+    public String toString() {
+        return courseCode + " - " + courseName;   
+    }
 }
