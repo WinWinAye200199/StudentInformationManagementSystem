@@ -1,3 +1,0 @@
-DOMESTIC,S001,Win,win@gmail.com,0212345678,Computing,2,false
-INTERNATIONAL,S002,John,john@gmail.com,0234657821,Computing,2,Myanmar,20/12/2027
-INTERNATIONAL,S003,Jay,jay@gmail.com,0234567812,Computing,2,Japan,23-July-2027

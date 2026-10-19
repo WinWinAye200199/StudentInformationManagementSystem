@@ -39,9 +39,6 @@ public class StudentPanel extends JPanel {
     private static final String DOMESTIC = "Domestic";
     private static final String INTERNATIONAL = "International";
 
-    private final CourseService courseService = new CourseService();
-    private final JComboBox<Course> courseBox = new JComboBox<>();
-
     private final StudentService studentService;
     private String selectedId = null;   // null = adding a new student, otherwise = editing this student
 
@@ -93,22 +90,12 @@ public class StudentPanel extends JPanel {
         typeBox.addActionListener(e -> updateTypeFields());
         updateTypeFields();
         loadStudents(null);
-        loadCourses();
 
         idField.setEditable(false);   // the ID is generated automatically
         showNextId();
 
     }
 
-    // Load all courses from the database into the dropdown
-    private void loadCourses() {
-        try {
-            List<Course> courses = courseService.getAllCourses();
-            courseBox.setModel(new DefaultComboBoxModel<>(courses.toArray(new Course[0])));
-        } catch (ServiceException ex) {
-            showError(ex.getMessage());
-        }
-    }
 
     // Show the next free ID (e.g. S003) in the ID field
     private void showNextId() {
@@ -250,7 +237,6 @@ public class StudentPanel extends JPanel {
     private void loadStudents(String keyword) {
         try {
             currentStudents = studentService.searchStudents(keyword);
-            System.out.println("Students loaded from DB: " + currentStudents.size());
             tableModel.setRowCount(0);
             for (Student s : currentStudents) {
                 tableModel.addRow(new Object[]{

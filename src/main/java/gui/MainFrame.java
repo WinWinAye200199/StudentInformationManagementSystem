@@ -45,12 +45,6 @@ public class MainFrame extends JFrame {
         add(tabs, BorderLayout.CENTER);
     }
 
-    private JPanel placeholder(String name) {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.add(new JLabel(name + " screen - coming next", SwingConstants.CENTER), BorderLayout.CENTER);
-        return panel;
-    }
-
     private void logout() {
         int choice = JOptionPane.showConfirmDialog(this, "Are you sure you want to log out?",
                 "Logout", JOptionPane.YES_NO_OPTION);
